@@ -81,6 +81,8 @@ class TimerVC: UIViewController {
         super.viewDidLoad()
         setup()
         //TODO: Set button actions for startPauseButton, resetButton and closeButton
+        startPauseButton.addTarget(self, action: #selector(startPauseButtonPressed(_:)), for: .touchUpInside)
+        resetButton.addTarget(self, action: #selector(resetButtonPressed(_:)), for: .touchUpInside)
         
         resetAll()
     }
@@ -91,22 +93,27 @@ class TimerVC: UIViewController {
         if timer.isValid {
          // Timer running
          // TODO: Change the button’s title to “Continue”
+            startPauseButton.setTitle("Continue", for: .normal)
          // TODO: Enable the reset button
+            resetButton.isEnabled = true
          // TODO: Pause the timer, call the method pauseTimer
-            
+            pauseTimer()
            
         } else {
          // Timer stopped or hasn't started
-         // TODO: Change the button’s title to “Pause”
-         // TODO: Disable the Reset button
-            
+         // Change the button’s title to “Pause”
+            startPauseButton.setTitle("Pause", for: .normal)
+         // Disable the Reset button
+            resetButton.isEnabled = false
             if currentInterval == 0 && timeRemaining == pomodoroDuration {
                 // We are at the start of a cycle
-                // TODO: begin the cycle of intervals
+                // Begin the cycle of intervals
+                startNextInterval()
                 
             } else {
                 // We are in the middle of a cycle
-                // TODO: Resume the timer.
+                // Resume the timer.
+                startTimer()
                 
             }
         }
@@ -116,7 +123,8 @@ class TimerVC: UIViewController {
         if timer.isValid {
             timer.invalidate()
         }
-        //TODO: call the reset method
+        //Call the reset method
+        resetAll()
     }
 
     // MARK: Create UI
@@ -149,6 +157,7 @@ class TimerVC: UIViewController {
     
     func startTimer() {
         //TODO: create the timer, the action called should be runTimer()
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(runTimer), userInfo: nil, repeats: true)
         
     }
     
@@ -197,6 +206,7 @@ class TimerVC: UIViewController {
         } else {
             // If all intervals are complete, reset all.
             // TODO: Post Notification
+            NotificationCenter.default.post(name: Notification.Name("cycleComplete"), object: nil)
             resetAll()
         }
     }
